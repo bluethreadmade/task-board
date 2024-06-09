@@ -62,7 +62,7 @@ function handleAddTask(event) {
         Title: title,
         Description: description,
         Due: due,
-        // ID: crypto.randomUUID,
+        ID: crypto.randomUUID(),
         Status: 'to-do'
     };
 
@@ -80,13 +80,62 @@ function handleAddTask(event) {
     taskDueInputEl.val('');
     
     console.log("hi");
+
+    createTaskCard(tasks);
+    renderTaskList(tasks);
 }
 
 function saveTasksToStorage(tasks) {
     localStorage.setItem('tasks', JSON.stringify(tasks));
- }
+}
+
 // create a card
+function createTaskCard(tasks){
+
+    const taskCard = $('<div>')
+         .addClass('card task-card draggable my-3')
+         .attr('data-project-id', tasks.Id);
+    const cardHeader = $('<div>').addClass('card-header').text(tasks.Title);
+    const cardBody = $('<div>').addClass('card-body');
+    const cardDescription = $('<p>').addClass('card-text').text(tasks.Description);
+    const cardDueDate = $('<p>').addClass('card-text').text(tasks.Due);
+    const cardDeleteBtn = $('<button>')
+        .addClass('btn btn-danger delete')
+        .text('Delete')
+        .attr('data-project-id', tasks.Id);
+    // event handler for delete button (on click run the delete project function)
+    // cardDeleteBtn.on('click', handleDeleteProject);
+
+    // Gather all the elements created above and append them to the correct elements.
+    cardBody.append(cardDescription, cardDueDate, cardDeleteBtn);
+    taskCard.append(cardHeader, cardBody);
+
+    console.log("create");
+    // Return the card so it can be appended to the correct lane.
+    return taskCard;
+}
+
 // render existing items on cards in local storage (on page load)
+// append the cards to the column based on status
+function renderTaskList(tasks){
+
+// name the lanes
+  const todoLane = $('#todo-cards');
+  const inProgressLane = $('#in-progress-cards');
+  const doneLane = $('#done-cards');
+
+  // ? Loop through projects and create project cards for each status
+  for (let task of tasks) {
+    if (task.Status === 'to-do') {
+        todoLane.append(createTaskCard(task));
+    } else if (task.Status === 'in-progress') {
+        inProgressLane.append(createTaskCard(task));
+    } else if (task.Status === 'done') {
+        doneLane.append(createTaskCard(task));
+    }
+  };
+}
+
 // - if empty, initilize taskList array
 // append to column on drag
 // - change color per column
