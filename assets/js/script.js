@@ -124,7 +124,6 @@ function handleDeleteTask(event){
     const taskId = $(this).attr('data-task-id');
     console.log(`${taskId}`);
 
-
     // for each task in the array, if the task ID matches this task ID, get right of it using splice
     taskList.forEach((task) => {
         if (task.id === taskId) {
@@ -143,11 +142,18 @@ function handleDeleteTask(event){
 function handleDrop(event, ui) {
 
   // Get the task id from the event
-  const taskId = ui.draggable[0].dataset.data-task-id;
-  console.log(`${ui.draggable[0]}`);
+  const taskId = ui.draggable.attr('data-task-id');
+  //const taskId = $(this).attr('data-task-id');
+  console.log(`${taskId}`);
 
   //  Get the id of the lane that the card was dropped into
   const newStatus = event.target.id;
+
+  // pull task array from local storage
+  // If no tasks were retrieved from localStorage, assign tasks to a new empty array to push to later.
+  if (!taskList) {
+    taskList = [];
+  };
 
   for (let task of taskList) {
     // ? Find the project card by the `id` and update the project status.
