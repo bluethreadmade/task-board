@@ -21,8 +21,7 @@ function createTaskCard(task) {
         .addClass('btn btn-danger delete')
         .text('Delete')
         .attr('data-task-id', task.Id);
-    // event handler for delete button (on click run the delete task function)
-    cardDeleteBtn.on('click', handleDeleteTask);
+
 
     // Gather all the elements created above and append them to the correct elements.
     cardBody.append(cardDescription, cardDueDate, cardDeleteBtn);
@@ -89,12 +88,17 @@ function handleAddTask(event){
     };
 
     // pull task array from local storage
+    // If no tasks were retrieved from localStorage, assign tasks to a new empty array to push to later.
+     if (!taskList) {
+       taskList = [];
+     };
+
     // let tasks = readTasksFromStorage();
     // push new object to tasks array
     taskList.push(newTask);
 
     // save to local storage
-    localStorage.setItem(taskList, JSON.stringify(taskList));
+    localStorage.setItem("tasks", JSON.stringify(taskList));
 
     // clear form inputs
     $('#task-title-input').val('');
@@ -108,17 +112,16 @@ function handleAddTask(event){
 function handleDeleteTask(event){
     // find task by id in local storage
     const taskId = $(this).attr('data-task-id');
-    taskList;
 
     // for each task in the array, if the task ID matches this task ID, get right of it using splice
     taskList.forEach((task) => {
         if (task.id === taskId) {
-            tasks.splice(tasks.indexOf(task), 1);
+            taskList.splice(taskList.indexOf(task), 1);
         }
       });
 
     // save the tasks to localStorage
-    localStorage.setItem(taskList, JSON.stringify(taskList));
+    localStorage.setItem("tasks", JSON.stringify(taskList));
 
     // render the screen
     renderTaskList();
@@ -154,8 +157,11 @@ $(document).ready(function () {
         changeMonth: true,
         changeYear: true,
       }); 
+
     // event listener for submit button
     $('#task-form').on('submit', handleAddTask);
+        // event handler for delete button (on click run the delete task function)
+    $('#delete').on('click', handleDeleteTask);
 
     // ? Make lanes droppable
   $('.lane').droppable({
