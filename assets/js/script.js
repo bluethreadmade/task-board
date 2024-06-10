@@ -6,13 +6,15 @@ let nextId = JSON.parse(localStorage.getItem("nextId"));
 function generateTaskId() {
     let id = crypto.randomUUID();
     console.log(id);
+
+    return id;
 }
 
 // Todo: create a function to create a task card
 function createTaskCard(task) {
     const taskCard = $('<div>')
          .addClass('card task-card draggable my-3')
-         .attr('data-task-id', task.Id);
+         .attr('data-task-id', task.ID);
     const cardHeader = $('<div>').addClass('card-header').text(task.Title);
     const cardBody = $('<div>').addClass('card-body');
     const cardDescription = $('<p>').addClass('card-text').text(task.Description);
@@ -20,7 +22,7 @@ function createTaskCard(task) {
     const cardDeleteBtn = $('<button>')
         .addClass('btn btn-danger delete')
         .text('Delete')
-        .attr('data-task-id', task.Id);
+        .attr('data-task-id', task.ID);
 
 
     // Gather all the elements created above and append them to the correct elements.
@@ -83,7 +85,7 @@ function handleAddTask(event){
         Title: title,
         Description: description,
         Due: due,
-        ID: crypto.randomUUID(),
+        ID: generateTaskId(),
         Status: 'to-do'
     };
 
@@ -106,16 +108,23 @@ function handleAddTask(event){
     $('#task-due').val('');
     
     console.log("hi");
+
+    renderTaskList();
 }
 
 // Todo: create a function to handle deleting a task
 function handleDeleteTask(event){
+    event.preventDefault();
+
+    console.log("delete");
     // find task by id in local storage
     const taskId = $(this).attr('data-task-id');
+    console.log(`${taskId}`);
+
 
     // for each task in the array, if the task ID matches this task ID, get right of it using splice
     taskList.forEach((task) => {
-        if (task.id === taskId) {
+        if (task.ID === taskId) {
             taskList.splice(taskList.indexOf(task), 1);
         }
       });
@@ -129,25 +138,24 @@ function handleDeleteTask(event){
 
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
-  // ? Read projects from localStorage
-  const projects = readProjectsFromStorage();
 
-  // ? Get the project id from the event
-  const taskId = ui.draggable[0].dataset.projectId;
+  // Get the task id from the event
+  const taskId = ui.draggable[0].dataset.data-task-ID;
+  console.log(`${taskId}`);
 
-  // ? Get the id of the lane that the card was dropped into
+  //  Get the id of the lane that the card was dropped into
   const newStatus = event.target.id;
 
-  for (let project of projects) {
+  for (let task of taskList) {
     // ? Find the project card by the `id` and update the project status.
-    if (project.id === taskId) {
-      project.status = newStatus;
+    if (task.ID === taskId) {
+        console.log(`${task.ID}`);
+      task.Status = newStatus;
     }
   }
   // ? Save the updated projects array to localStorage (overwritting the previous one) and render the new project data to the screen.
-  localStorage.setItem('projects', JSON.stringify(projects));
-  printProjectData();
-
+  localStorage.setItem("tasks", JSON.stringify(taskList));
+  renderTaskList();
 }
 
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
@@ -158,13 +166,16 @@ $(document).ready(function () {
         changeYear: true,
       }); 
 
+    renderTaskList();
+
     // event listener for submit button
     $('#task-form').on('submit', handleAddTask);
-        // event handler for delete button (on click run the delete task function)
-    $('#delete').on('click', handleDeleteTask);
+
+    // event handler for delete button (on click run the delete task function)
+    $('.lane').on('click', 'delete', handleDeleteTask);
 
     // ? Make lanes droppable
-  $('.lane').droppable({
+    $('.lane').droppable({
     accept: '.draggable',
     drop: handleDrop,
   });
