@@ -5,7 +5,6 @@ let nextId = JSON.parse(localStorage.getItem("nextId"));
 // Todo: create a function to generate a unique task id
 function generateTaskId() {
     let id = crypto.randomUUID();
-    console.log(id);
 
     return id;
 }
@@ -14,15 +13,15 @@ function generateTaskId() {
 function createTaskCard(task) {
     const taskCard = $('<div>')
          .addClass('card task-card draggable my-3')
-         .attr('data-task-id', task.ID);
-    const cardHeader = $('<div>').addClass('card-header').text(task.Title);
+         .attr('data-task-id', task.id);
+    const cardHeader = $('<div>').addClass('card-header').text(task.title);
     const cardBody = $('<div>').addClass('card-body');
-    const cardDescription = $('<p>').addClass('card-text').text(task.Description);
-    const cardDueDate = $('<p>').addClass('card-text').text(task.Due);
+    const cardDescription = $('<p>').addClass('card-text').text(task.description);
+    const cardDueDate = $('<p>').addClass('card-text').text(task.due);
     const cardDeleteBtn = $('<button>')
         .addClass('btn btn-danger delete')
         .text('Delete')
-        .attr('data-task-id', task.ID);
+        .attr('data-task-id', task.id);
 
 
     // Gather all the elements created above and append them to the correct elements.
@@ -37,18 +36,21 @@ function createTaskCard(task) {
 // Todo: create a function to render the task list and make cards draggable
 function renderTaskList() {
 
-// name the lanes
+// name the lanes and empty them
   const todoLane = $('#todo-cards');
+  todoLane.empty();
   const inProgressLane = $('#in-progress-cards');
+  inProgressLane.empty();
   const doneLane = $('#done-cards');
+  doneLane.empty();
 
   // ? Loop through tasks and create task cards for each status
   for (let tasks of taskList) {
-    if (tasks.Status === 'to-do') {
+    if (tasks.status === 'to-do') {
         todoLane.append(createTaskCard(tasks));
-    } else if (tasks.Status === 'in-progress') {
+    } else if (tasks.status === 'in-progress') {
         inProgressLane.append(createTaskCard(tasks));
-    } else if (tasks.Status === 'done') {
+    } else if (tasks.status === 'done') {
         doneLane.append(createTaskCard(tasks));
     }
   };
@@ -69,6 +71,7 @@ function renderTaskList() {
       });
     },
   });
+
 }
 
 // Todo: create a function to handle adding a new task
@@ -82,11 +85,11 @@ function handleAddTask(event){
 
     // create/initialize? new task object
     const newTask = {
-        Title: title,
-        Description: description,
-        Due: due,
-        ID: generateTaskId(),
-        Status: 'to-do'
+        title: title,
+        description: description,
+        due: due,
+        id: generateTaskId(),
+        status: 'to-do'
     };
 
     // pull task array from local storage
@@ -124,7 +127,7 @@ function handleDeleteTask(event){
 
     // for each task in the array, if the task ID matches this task ID, get right of it using splice
     taskList.forEach((task) => {
-        if (task.ID === taskId) {
+        if (task.id === taskId) {
             taskList.splice(taskList.indexOf(task), 1);
         }
       });
@@ -140,17 +143,17 @@ function handleDeleteTask(event){
 function handleDrop(event, ui) {
 
   // Get the task id from the event
-  const taskId = ui.draggable[0].dataset.data-task-ID;
-  console.log(`${taskId}`);
+  const taskId = ui.draggable[0].dataset.data-task-id;
+  console.log(`${ui.draggable[0]}`);
 
   //  Get the id of the lane that the card was dropped into
   const newStatus = event.target.id;
 
   for (let task of taskList) {
     // ? Find the project card by the `id` and update the project status.
-    if (task.ID === taskId) {
-        console.log(`${task.ID}`);
-      task.Status = newStatus;
+    if (task.id === taskId) {
+        console.log(`${task.id}`);
+      task.status = newStatus;
     }
   }
   // ? Save the updated projects array to localStorage (overwritting the previous one) and render the new project data to the screen.
@@ -166,6 +169,12 @@ $(document).ready(function () {
         changeYear: true,
       }); 
 
+    // ? Make lanes droppable
+    $('.lane').droppable({
+    accept: '.draggable',
+    drop: handleDrop,
+    });
+    
     renderTaskList();
 
     // event listener for submit button
@@ -174,11 +183,8 @@ $(document).ready(function () {
     // event handler for delete button (on click run the delete task function)
     $('.lane').on('click', 'delete', handleDeleteTask);
 
-    // ? Make lanes droppable
-    $('.lane').droppable({
-    accept: '.draggable',
-    drop: handleDrop,
-  });
+
+
 });
 
 
