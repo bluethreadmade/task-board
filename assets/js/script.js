@@ -36,7 +36,7 @@ function generateTaskId() {
     console.log(id);
 }
 
-function readProjectsFromStorage() {
+function readTasksFromStorage() {
 // If no tasks were retrieved from localStorage, assign tasks to a new empty array to push to later.
      if (!taskList) {
        taskList = [];
@@ -67,7 +67,7 @@ function handleAddTask(event) {
     };
 
     // pull task array from local storage
-    let tasks = readProjectsFromStorage();
+    let tasks = readTasksFromStorage();
     // push new object to tasks array
     tasks.push(newTask);
 
@@ -94,7 +94,7 @@ function createTaskCard(tasks){
 
     const taskCard = $('<div>')
          .addClass('card task-card draggable my-3')
-         .attr('data-project-id', tasks.Id);
+         .attr('data-task-id', tasks.Id);
     const cardHeader = $('<div>').addClass('card-header').text(tasks.Title);
     const cardBody = $('<div>').addClass('card-body');
     const cardDescription = $('<p>').addClass('card-text').text(tasks.Description);
@@ -102,9 +102,9 @@ function createTaskCard(tasks){
     const cardDeleteBtn = $('<button>')
         .addClass('btn btn-danger delete')
         .text('Delete')
-        .attr('data-project-id', tasks.Id);
-    // event handler for delete button (on click run the delete project function)
-    // cardDeleteBtn.on('click', handleDeleteProject);
+        .attr('data-task-id', tasks.Id);
+    // event handler for delete button (on click run the delete task function)
+    cardDeleteBtn.on('click', handleDeleteTask);
 
     // Gather all the elements created above and append them to the correct elements.
     cardBody.append(cardDescription, cardDueDate, cardDeleteBtn);
@@ -113,6 +113,25 @@ function createTaskCard(tasks){
     console.log("create");
     // Return the card so it can be appended to the correct lane.
     return taskCard;
+}
+
+function handleDeleteTask(){
+    // find task by id in local storage
+    const taskId = $(this).attr('data-task-id');
+    const tasks = readTasksFromStorage();
+
+    // for each task in the array, if the task ID matches this task ID, get right of it using splice
+    tasks.forEach((task) => {
+        if (task.id === taskId) {
+            tasks.splice(tasks.indexOf(task), 1);
+        }
+      });
+
+    // save the tasks to localStorage
+    saveTasksToStorage(tasks);
+
+    // render the screen
+    renderTaskList();
 }
 
 // render existing items on cards in local storage (on page load)
@@ -124,14 +143,14 @@ function renderTaskList(tasks){
   const inProgressLane = $('#in-progress-cards');
   const doneLane = $('#done-cards');
 
-  // ? Loop through projects and create project cards for each status
-  for (let task of tasks) {
-    if (task.Status === 'to-do') {
-        todoLane.append(createTaskCard(task));
-    } else if (task.Status === 'in-progress') {
-        inProgressLane.append(createTaskCard(task));
-    } else if (task.Status === 'done') {
-        doneLane.append(createTaskCard(task));
+  // ? Loop through tasks and create task cards for each status
+  for (let tasks of taskList) {
+    if (tasks.Status === 'to-do') {
+        todoLane.append(createTaskCard(tasks));
+    } else if (tasks.Status === 'in-progress') {
+        inProgressLane.append(createTaskCard(tasks));
+    } else if (tasks.Status === 'done') {
+        doneLane.append(createTaskCard(tasks));
     }
   };
 }
