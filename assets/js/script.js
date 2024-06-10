@@ -181,9 +181,7 @@ $(document).ready(function () {
     $('#task-form').on('submit', handleAddTask);
 
     // event handler for delete button (on click run the delete task function)
-    $('.lane').on('click', 'delete', handleDeleteTask);
-
-
+    $('.lane').on('click', '.delete', handleDeleteTask);
 
 });
 
