@@ -6,3 +6,4 @@ This is a simple javascript, jquery, bootstrap and html exercise that creates a 
 ![image](https://github.com/bluethreadmade/task-board/assets/169301676/6f321097-25ff-4c24-9f20-ae7e3dbf1c0c)
 
 ## Link to Deployed Application
+https://bluethreadmade.github.io/task-board/
